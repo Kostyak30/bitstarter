@@ -24,8 +24,13 @@ References:
 var fs = require('fs');
 var program = require('commander');
 var cheerio = require('cheerio');
+var rest = require('restler');
+var util = require('util');
+
 var HTMLFILE_DEFAULT = "index.html";
 var CHECKSFILE_DEFAULT = "checks.json";
+var URL_DEFAULT = "http://fierce-reaches-1073.herokuapp.com"; 
+var URL_OUT_FILE = "out.html";
 
 var assertFileExists = function(infile) {
     var instr = infile.toString();
@@ -61,12 +66,31 @@ var clone = function(fn) {
     return fn.bind({});
 };
 
+var saveUrl2file = function(result, response) {
+	if (result instanceof Error) {
+		console.error('Error: ' + util.format(response.message));
+	} else {
+		console.error("Wrote %s", URL_OUT_FILE);
+		fs.writeFileSync(URL_OUT_FILE, result);		
+	}
+};
+
 if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
-        .parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+        .option('-u, --url <url_check>', 'URL to check', URL_DEFAULT) 
+		.parse(process.argv);
+    
+	var outFile;
+	if(program.file) outFile = program.file;
+		
+	if (program.url) {	
+		rest.get(program.url).on('complete', saveUrl2file);
+		outFile = URL_OUT_FILE;		
+	}
+	
+	var checkJson = checkHtmlFile(outFile, program.checks);
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
