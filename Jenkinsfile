@@ -6,6 +6,11 @@ pipeline {
         parallel(
           "Build": {
             sh 'echo Building'
+            catchError() {
+              sh '''echo "burnning man"
+exit 1'''
+            }
+            
             
           },
           "Test": {
