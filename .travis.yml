@@ -13,8 +13,12 @@ install:
 - echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
 - curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
 - sudo apt-get update && sudo apt-get install azure-cli
-- wget https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /tmp/kubectl
-- chmod +x /tmp/kubectl
+- sudo apt-get install -y apt-transport-https
+- curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+- sudo touch /etc/apt/sources.list.d/kubernetes.list 
+- echo "deb http://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+- sudo apt-get update
+- sudo apt-get install -y kubectl
 - wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
 - tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
 - chmod +x /tmp/helm
