@@ -1,0 +1,32 @@
+language: node_js
+node_js:
+- node
+sudo: required
+services:
+- docker
+
+env:
+- KUBECTL_VERSION=v1.9.6
+- HELM_VERSION=v2.8.2
+
+install:
+- echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ wheezy main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+- curl -L https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+- sudo apt-get update && sudo apt-get install azure-cli
+- wget https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl -O /tmp/kubectl
+- chmod +x /tmp/kubectl
+- wget http://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz -O /tmp/helm.tar.gz
+- tar xzf /tmp/helm.tar.gz -C /tmp --strip-components=1
+- chmod +x /tmp/helm
+- export PATH=$PATH:/tmp
+
+before_script:
+- helm init --client-only
+- helm repo add stable https://kubernetes-charts.storage.googleapis.com
+- az aks get-credentials --resource-group MySpecialWayDev --name mswAKSCluster
+
+script:
+- kubectl get nodes
+
+
+
